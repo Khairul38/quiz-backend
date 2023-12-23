@@ -19,3 +19,8 @@
 
 - https://quiz-backend-pied.vercel.app/api/v1/profile (GET)
 
+#### Category
+
+#### Quiz
+
+#### Leader Board
