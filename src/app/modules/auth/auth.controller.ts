@@ -4,7 +4,7 @@ import httpStatus from "http-status";
 import config from "../../../config";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
-import { IRefreshTokenResponse } from "./auth.interface";
+import { ILoginUserResponse, IRefreshTokenResponse } from "./auth.interface";
 import {
   createUserToDB,
   loginUserFromDB,
@@ -19,7 +19,7 @@ export const createUser = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Partial<User>>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "User signup successfully",
+    message: "User created successfully",
     data: result,
   });
 });
@@ -27,7 +27,7 @@ export const createUser = catchAsync(async (req: Request, res: Response) => {
 export const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { ...loginData } = req.body;
   const result = await loginUserFromDB(loginData);
-  const { refreshToken, accessToken } = result;
+  const { refreshToken, ...others } = result;
 
   // set refresh token into cookie
   const cookieOptions = {
@@ -37,11 +37,11 @@ export const loginUser = catchAsync(async (req: Request, res: Response) => {
 
   res.cookie("refreshToken", refreshToken, cookieOptions);
 
-  sendResponse<string>(res, {
+  sendResponse<ILoginUserResponse>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "User signin successfully !",
-    token: accessToken,
+    message: "User signin in successfully !",
+    data: others,
   });
 });
 
