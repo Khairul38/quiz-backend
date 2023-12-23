@@ -19,7 +19,7 @@ export const createUser = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Partial<User>>(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "User created successfully",
+    message: "User signup successfully",
     data: result,
   });
 });
@@ -40,7 +40,7 @@ export const loginUser = catchAsync(async (req: Request, res: Response) => {
   sendResponse<string>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "User signin in successfully !",
+    message: "User signin successfully !",
     token: accessToken,
   });
 });
