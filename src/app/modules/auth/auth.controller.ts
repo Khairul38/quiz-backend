@@ -1,4 +1,3 @@
-import { User } from "@prisma/client";
 import { Request, Response } from "express";
 import httpStatus from "http-status";
 import config from "../../../config";
@@ -16,11 +15,21 @@ export const createUser = catchAsync(async (req: Request, res: Response) => {
 
   const result = await createUserToDB(user);
 
-  sendResponse<Partial<User>>(res, {
+  const { refreshToken, ...others } = result;
+
+  // set refresh token into cookie
+  const cookieOptions = {
+    secure: config.env === "production",
+    httpOnly: true,
+  };
+
+  res.cookie("refreshToken", refreshToken, cookieOptions);
+
+  sendResponse<ILoginUserResponse>(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: "User created successfully",
-    data: result,
+    data: others,
   });
 });
 

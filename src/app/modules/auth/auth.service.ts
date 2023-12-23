@@ -6,7 +6,7 @@ import config from "../../../config";
 import ApiError from "../../../errors/ApiError";
 import { createToken, verifyToken } from "../../../helpers/jwtHelpers";
 import { isPasswordMatched } from "../../../helpers/passwordMatchHelper";
-import { prismaExclude } from "../../../helpers/prismaExcludeHelper";
+// import { prismaExclude } from "../../../helpers/prismaExcludeHelper";
 import { prisma } from "../../../shared/prisma";
 import {
   ILoginUser,
@@ -16,7 +16,19 @@ import {
 
 export const createUserToDB = async (
   userData: User
-): Promise<Partial<User>> => {
+): Promise<ILoginUserResponse> => {
+  const isUserExist = await prisma.user.findUnique({
+    where: {
+      email: userData.email,
+    },
+  });
+  if (isUserExist) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "User already exist with this email"
+    );
+  }
+
   // hash password before create
   userData.password = await bcrypt.hash(
     userData.password,
@@ -28,10 +40,29 @@ export const createUserToDB = async (
   });
 
   if (createdUser) {
-    const userWithoutPassword = prismaExclude<User, "password">(createdUser, [
-      "password",
-    ]);
-    return userWithoutPassword;
+    //create access token & refresh token
+    const { id, role, name, email } = createdUser;
+    const accessToken = createToken(
+      { id, role, email, name },
+      config.jwt.secret as Secret,
+      config.jwt.expires_in as string
+    );
+
+    const refreshToken = createToken(
+      { id, role, email, name },
+      config.jwt.refresh_secret as Secret,
+      config.jwt.refresh_expires_in as string
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+
+    // const userWithoutPassword = prismaExclude<User, "password">(createdUser, [
+    //   "password",
+    // ]);
+    // return userWithoutPassword;
   } else {
     throw new ApiError(httpStatus.BAD_REQUEST, "Failed to create user!");
   }

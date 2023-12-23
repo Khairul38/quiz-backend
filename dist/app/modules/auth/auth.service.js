@@ -19,19 +19,35 @@ const config_1 = __importDefault(require("../../../config"));
 const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 const jwtHelpers_1 = require("../../../helpers/jwtHelpers");
 const passwordMatchHelper_1 = require("../../../helpers/passwordMatchHelper");
-const prismaExcludeHelper_1 = require("../../../helpers/prismaExcludeHelper");
+// import { prismaExclude } from "../../../helpers/prismaExcludeHelper";
 const prisma_1 = require("../../../shared/prisma");
 const createUserToDB = (userData) => __awaiter(void 0, void 0, void 0, function* () {
+    const isUserExist = yield prisma_1.prisma.user.findUnique({
+        where: {
+            email: userData.email,
+        },
+    });
+    if (isUserExist) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "User already exist with this email");
+    }
     // hash password before create
     userData.password = yield bcrypt_1.default.hash(userData.password, Number(config_1.default.bcrypt_salt_rounds));
     const createdUser = yield prisma_1.prisma.user.create({
         data: userData,
     });
     if (createdUser) {
-        const userWithoutPassword = (0, prismaExcludeHelper_1.prismaExclude)(createdUser, [
-            "password",
-        ]);
-        return userWithoutPassword;
+        //create access token & refresh token
+        const { id, role, name, email } = createdUser;
+        const accessToken = (0, jwtHelpers_1.createToken)({ id, role, email, name }, config_1.default.jwt.secret, config_1.default.jwt.expires_in);
+        const refreshToken = (0, jwtHelpers_1.createToken)({ id, role, email, name }, config_1.default.jwt.refresh_secret, config_1.default.jwt.refresh_expires_in);
+        return {
+            accessToken,
+            refreshToken,
+        };
+        // const userWithoutPassword = prismaExclude<User, "password">(createdUser, [
+        //   "password",
+        // ]);
+        // return userWithoutPassword;
     }
     else {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Failed to create user!");
