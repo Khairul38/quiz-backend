@@ -20,7 +20,7 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "categories" (
     "id" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -31,6 +31,9 @@ CREATE TABLE "categories" (
 CREATE TABLE "quizs" (
     "id" TEXT NOT NULL,
     "question" TEXT NOT NULL,
+    "mark" DOUBLE PRECISION NOT NULL,
+    "timeTaken" DOUBLE PRECISION NOT NULL,
+    "multiChoice" BOOLEAN NOT NULL,
     "creatorId" TEXT NOT NULL,
     "categoryId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -45,11 +48,24 @@ CREATE TABLE "quiz_answers" (
     "quizId" TEXT NOT NULL,
     "answer" TEXT NOT NULL,
     "explanation" TEXT NOT NULL,
-    "isTrue" BOOLEAN NOT NULL,
+    "istrue" BOOLEAN NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "quiz_answers_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "leader_board" (
+    "id" TEXT NOT NULL,
+    "totalMark" DOUBLE PRECISION NOT NULL,
+    "correctlyAnswer" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "categoryId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "leader_board_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -63,3 +79,9 @@ ALTER TABLE "quizs" ADD CONSTRAINT "quizs_categoryId_fkey" FOREIGN KEY ("categor
 
 -- AddForeignKey
 ALTER TABLE "quiz_answers" ADD CONSTRAINT "quiz_answers_quizId_fkey" FOREIGN KEY ("quizId") REFERENCES "quizs"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "leader_board" ADD CONSTRAINT "leader_board_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "leader_board" ADD CONSTRAINT "leader_board_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

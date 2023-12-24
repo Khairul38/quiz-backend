@@ -22,28 +22,33 @@ model User {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  quizs Quiz[]
+  quizs        Quiz[]
+  leaderBoards LeaderBoard[]
 
   @@map("users")
 }
 
 model Category {
-  id        String   @id @default(uuid())
-  title     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  quizs     Quiz[]
+  id           String        @id @default(uuid())
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  quizs        Quiz[]
+  leaderBoards LeaderBoard[]
 
   @@map("categories")
 }
 
 model Quiz {
-  id         String   @id @default(uuid())
-  question   String
-  creatorId  String
-  creator    User     @relation(fields: [creatorId], references: [id])
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
+  id          String   @id @default(uuid())
+  question    String
+  mark        Float
+  timeTaken   Float
+  multiChoice Boolean
+  creatorId   String
+  creator     User     @relation(fields: [creatorId], references: [id])
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -59,12 +64,27 @@ model QuizAnswer {
   quiz        Quiz    @relation(fields: [quizId], references: [id])
   answer      String
   explanation String
-  isTrue      Boolean
+  istrue      Boolean
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("quiz_answers")
+}
+
+model LeaderBoard {
+  id              String   @id @default(uuid())
+  totalMark       Float
+  correctlyAnswer String
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("leader_board")
 }
 
 enum UserRole {
