@@ -97,6 +97,9 @@ const getAllQuizFromDB = (filters, paginationOptions) => __awaiter(void 0, void 
     const whereCondition = andCondition.length > 0 ? { AND: andCondition } : {};
     const result = yield prisma_1.prisma.quiz.findMany({
         where: whereCondition,
+        include: {
+            quizAnswers: true,
+        },
         skip,
         take: size,
         orderBy: sortBy && sortOrder
@@ -136,7 +139,7 @@ const getSingleQuizFromDB = (id) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.getSingleQuizFromDB = getSingleQuizFromDB;
 const updateSingleQuizToDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const { creatorId, categoryId, mark, multiChoice, question, timeTaken, quizAnswers, } = payload;
+    const { quizAnswers } = payload, quizData = __rest(payload, ["quizAnswers"]);
     if (payload.categoryId) {
         const isExist = yield prisma_1.prisma.category.findUnique({
             where: {
@@ -148,34 +151,32 @@ const updateSingleQuizToDB = (id, payload) => __awaiter(void 0, void 0, void 0, 
         }
     }
     const updateQuiz = yield prisma_1.prisma.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
-        const result = yield transactionClient.quiz.update({
+        const result1 = yield transactionClient.quiz.update({
             where: {
                 id,
             },
-            data: {
-                creatorId,
-                categoryId,
-                mark,
-                multiChoice,
-                question,
-                timeTaken,
-            },
+            data: quizData,
         });
-        if (!result) {
+        if (!result1) {
             throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Unable to update quiz");
         }
-        yield transactionClient.quizAnswer.updateMany({
+        const result2 = yield transactionClient.quizAnswer.deleteMany({
             where: {
-                id,
-            },
-            data: quizAnswers.map(ob => ({
                 quizId: id,
+            },
+        });
+        if (!result2) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Unable to update quiz");
+        }
+        yield transactionClient.quizAnswer.createMany({
+            data: quizAnswers.map(ob => ({
+                quizId: result1.id,
                 answer: ob.answer,
                 explanation: ob.explanation,
                 istrue: ob.istrue,
             })),
         });
-        return result;
+        return result1;
     }));
     if (updateQuiz) {
         const responseData = yield prisma_1.prisma.quiz.findUnique({
@@ -197,7 +198,7 @@ const deleteSingleQuizFromDB = (id) => __awaiter(void 0, void 0, void 0, functio
     const deleteQuiz = yield prisma_1.prisma.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
         const result1 = yield transactionClient.quizAnswer.deleteMany({
             where: {
-                id,
+                quizId: id,
             },
         });
         if (!result1) {

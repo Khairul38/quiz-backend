@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { LeaderBoard, Prisma } from "@prisma/client";
+import { LeaderBoard, Prisma, User } from "@prisma/client";
 import httpStatus from "http-status";
 import ApiError from "../../../errors/ApiError";
 import { calculatePagination } from "../../../helpers/paginationHelper";
+import { prismaExclude } from "../../../helpers/prismaExcludeHelper";
 import { IGenericResponse } from "../../../interfaces/common";
 import { IPaginationOptions } from "../../../interfaces/pagination";
 import { prisma } from "../../../shared/prisma";
-import { ILeaderBoardFilters } from "./leaderBoard.interface";
 import { leaderBoardSearchableFields } from "./leaderBoard.constant";
+import { ILeaderBoardFilters } from "./leaderBoard.interface";
 
 export const createLeaderBoardToDB = async (
   leaderBoardData: LeaderBoard
-): Promise<LeaderBoard> => {
+): Promise<Partial<any> | undefined> => {
   const result = await prisma.leaderBoard.create({
     data: leaderBoardData,
     include: {
@@ -19,13 +20,19 @@ export const createLeaderBoardToDB = async (
     },
   });
 
-  return result;
+  if (result) {
+    const userWithoutPassword = prismaExclude<User, "password">(result.user, [
+      "password",
+    ]);
+
+    return { ...result, user: userWithoutPassword };
+  }
 };
 
 export const getAllLeaderBoardFromDB = async (
   filters: ILeaderBoardFilters,
   paginationOptions: IPaginationOptions
-): Promise<IGenericResponse<LeaderBoard[]>> => {
+): Promise<IGenericResponse<Partial<LeaderBoard[]>> | undefined> => {
   const { page, size, skip, sortBy, sortOrder } =
     calculatePagination(paginationOptions);
   const { searchTerm, ...filtersData } = filters;
@@ -58,6 +65,9 @@ export const getAllLeaderBoardFromDB = async (
 
   const result = await prisma.leaderBoard.findMany({
     where: whereCondition,
+    include: {
+      user: true,
+    },
     skip,
     take: size,
     orderBy:
@@ -70,15 +80,24 @@ export const getAllLeaderBoardFromDB = async (
   const total = await prisma.leaderBoard.count();
   const totalPage = Number(total) / Number(size);
 
-  return {
-    meta: {
-      total,
-      page,
-      size,
-      totalPage: Math.ceil(totalPage),
-    },
-    data: result,
-  };
+  if (result) {
+    const resultWithoutPassword = result.map(r => {
+      const userWithoutPassword = prismaExclude<User, "password">(r.user, [
+        "password",
+      ]);
+      return { ...r, user: userWithoutPassword };
+    });
+
+    return {
+      meta: {
+        total,
+        page,
+        size,
+        totalPage: Math.ceil(totalPage),
+      },
+      data: resultWithoutPassword,
+    };
+  }
 };
 
 export const getSingleLeaderBoardFromDB = async (

@@ -1,4 +1,4 @@
-import { LeaderBoard } from "@prisma/client";
+// import { LeaderBoard } from "@prisma/client";
 import { Request, Response } from "express";
 import httpStatus from "http-status";
 import { paginationFields } from "../../../constants/pagination";
@@ -20,7 +20,7 @@ export const createLeaderBoard = catchAsync(
 
     const result = await createLeaderBoardToDB(leaderBoard);
 
-    sendResponse<LeaderBoard>(res, {
+    sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: "LeaderBoard created successfully",
@@ -40,8 +40,8 @@ export const getAllLeaderBoard = catchAsync(
       statusCode: httpStatus.OK,
       success: true,
       message: "LeaderBoards fetched successfully",
-      meta: result.meta,
-      data: result.data,
+      meta: result?.meta,
+      data: result?.data,
     });
   }
 );

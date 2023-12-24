@@ -96,6 +96,9 @@ export const getAllQuizFromDB = async (
 
   const result = await prisma.quiz.findMany({
     where: whereCondition,
+    include: {
+      quizAnswers: true,
+    },
     skip,
     take: size,
     orderBy:
@@ -143,15 +146,7 @@ export const updateSingleQuizToDB = async (
   id: string,
   payload: ICreateQuiz
 ): Promise<Partial<ICreateQuiz> | null> => {
-  const {
-    creatorId,
-    categoryId,
-    mark,
-    multiChoice,
-    question,
-    timeTaken,
-    quizAnswers,
-  } = payload;
+  const { quizAnswers, ...quizData } = payload;
 
   if (payload.categoryId) {
     const isExist = await prisma.category.findUnique({
@@ -168,37 +163,36 @@ export const updateSingleQuizToDB = async (
   }
 
   const updateQuiz = await prisma.$transaction(async transactionClient => {
-    const result = await transactionClient.quiz.update({
+    const result1 = await transactionClient.quiz.update({
       where: {
         id,
       },
-      data: {
-        creatorId,
-        categoryId,
-        mark,
-        multiChoice,
-        question,
-        timeTaken,
-      },
+      data: quizData,
     });
-
-    if (!result) {
+    if (!result1) {
       throw new ApiError(httpStatus.BAD_REQUEST, "Unable to update quiz");
     }
 
-    await transactionClient.quizAnswer.updateMany({
+    const result2 = await transactionClient.quizAnswer.deleteMany({
       where: {
-        id,
-      },
-      data: quizAnswers.map(ob => ({
         quizId: id,
+      },
+    });
+
+    if (!result2) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Unable to update quiz");
+    }
+
+    await transactionClient.quizAnswer.createMany({
+      data: quizAnswers.map(ob => ({
+        quizId: result1.id,
         answer: ob.answer,
         explanation: ob.explanation,
         istrue: ob.istrue,
       })),
     });
 
-    return result;
+    return result1;
   });
 
   if (updateQuiz) {
@@ -225,7 +219,7 @@ export const deleteSingleQuizFromDB = async (
   const deleteQuiz = await prisma.$transaction(async transactionClient => {
     const result1 = await transactionClient.quizAnswer.deleteMany({
       where: {
-        id,
+        quizId: id,
       },
     });
 

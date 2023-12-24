@@ -27,6 +27,7 @@ exports.deleteSingleLeaderBoardFromDB = exports.updateSingleLeaderBoardToDB = ex
 const http_status_1 = __importDefault(require("http-status"));
 const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 const paginationHelper_1 = require("../../../helpers/paginationHelper");
+const prismaExcludeHelper_1 = require("../../../helpers/prismaExcludeHelper");
 const prisma_1 = require("../../../shared/prisma");
 const leaderBoard_constant_1 = require("./leaderBoard.constant");
 const createLeaderBoardToDB = (leaderBoardData) => __awaiter(void 0, void 0, void 0, function* () {
@@ -36,7 +37,12 @@ const createLeaderBoardToDB = (leaderBoardData) => __awaiter(void 0, void 0, voi
             user: true,
         },
     });
-    return result;
+    if (result) {
+        const userWithoutPassword = (0, prismaExcludeHelper_1.prismaExclude)(result.user, [
+            "password",
+        ]);
+        return Object.assign(Object.assign({}, result), { user: userWithoutPassword });
+    }
 });
 exports.createLeaderBoardToDB = createLeaderBoardToDB;
 const getAllLeaderBoardFromDB = (filters, paginationOptions) => __awaiter(void 0, void 0, void 0, function* () {
@@ -65,6 +71,9 @@ const getAllLeaderBoardFromDB = (filters, paginationOptions) => __awaiter(void 0
     const whereCondition = andCondition.length > 0 ? { AND: andCondition } : {};
     const result = yield prisma_1.prisma.leaderBoard.findMany({
         where: whereCondition,
+        include: {
+            user: true,
+        },
         skip,
         take: size,
         orderBy: sortBy && sortOrder
@@ -75,15 +84,23 @@ const getAllLeaderBoardFromDB = (filters, paginationOptions) => __awaiter(void 0
     });
     const total = yield prisma_1.prisma.leaderBoard.count();
     const totalPage = Number(total) / Number(size);
-    return {
-        meta: {
-            total,
-            page,
-            size,
-            totalPage: Math.ceil(totalPage),
-        },
-        data: result,
-    };
+    if (result) {
+        const resultWithoutPassword = result.map(r => {
+            const userWithoutPassword = (0, prismaExcludeHelper_1.prismaExclude)(r.user, [
+                "password",
+            ]);
+            return Object.assign(Object.assign({}, r), { user: userWithoutPassword });
+        });
+        return {
+            meta: {
+                total,
+                page,
+                size,
+                totalPage: Math.ceil(totalPage),
+            },
+            data: resultWithoutPassword,
+        };
+    }
 });
 exports.getAllLeaderBoardFromDB = getAllLeaderBoardFromDB;
 const getSingleLeaderBoardFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {

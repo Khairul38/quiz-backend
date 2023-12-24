@@ -49,8 +49,8 @@ exports.getAllLeaderBoard = (0, catchAsync_1.default)((req, res) => __awaiter(vo
         statusCode: http_status_1.default.OK,
         success: true,
         message: "LeaderBoards fetched successfully",
-        meta: result.meta,
-        data: result.data,
+        meta: result === null || result === void 0 ? void 0 : result.meta,
+        data: result === null || result === void 0 ? void 0 : result.data,
     });
 }));
 exports.getSingleLeaderBoard = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
