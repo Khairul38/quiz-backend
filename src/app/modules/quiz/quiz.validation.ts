@@ -28,7 +28,7 @@ export const createQuizZodSchema = z.object({
         explanation: z.string({
           required_error: "Explanation is required",
         }),
-        istrue: z.number({
+        istrue: z.boolean({
           required_error: "Correct answer (istrue) is required",
         }),
       }),
@@ -52,7 +52,7 @@ export const updateQuizZodSchema = z.object({
         z.object({
           answer: z.string().optional(),
           explanation: z.string().optional(),
-          istrue: z.number().optional(),
+          istrue: z.boolean().optional(),
         })
       )
       .optional(),

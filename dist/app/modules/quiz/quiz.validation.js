@@ -29,7 +29,7 @@ exports.createQuizZodSchema = zod_1.z.object({
             explanation: zod_1.z.string({
                 required_error: "Explanation is required",
             }),
-            istrue: zod_1.z.number({
+            istrue: zod_1.z.boolean({
                 required_error: "Correct answer (istrue) is required",
             }),
         }), {
@@ -49,7 +49,7 @@ exports.updateQuizZodSchema = zod_1.z.object({
             .array(zod_1.z.object({
             answer: zod_1.z.string().optional(),
             explanation: zod_1.z.string().optional(),
-            istrue: zod_1.z.number().optional(),
+            istrue: zod_1.z.boolean().optional(),
         }))
             .optional(),
     }),
