@@ -30,7 +30,7 @@ const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const prisma_1 = require("../../../shared/prisma");
 const quiz_constant_1 = require("./quiz.constant");
 const createQuizToDB = (user, quizData) => __awaiter(void 0, void 0, void 0, function* () {
-    const { categoryId, mark, multiChoice, question, timeTaken, quizAnswers, } = quizData;
+    const { categoryId, mark, multiChoice, question, timeTaken, quizAnswers } = quizData;
     const newQuiz = yield prisma_1.prisma.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
         const result = yield transactionClient.quiz.create({
             data: {
