@@ -14,20 +14,13 @@ export const createQuizToDB = async (
   user: JwtPayload | null,
   quizData: ICreateQuiz
 ): Promise<any> => {
-  const {
-    creatorId,
-    categoryId,
-    mark,
-    multiChoice,
-    question,
-    timeTaken,
-    quizAnswers,
-  } = quizData;
+  const { categoryId, mark, multiChoice, question, timeTaken, quizAnswers } =
+    quizData;
 
   const newQuiz = await prisma.$transaction(async transactionClient => {
     const result = await transactionClient.quiz.create({
       data: {
-        creatorId,
+        creatorId: user?.id,
         categoryId,
         mark,
         multiChoice,
