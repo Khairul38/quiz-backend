@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LeaderBoard, Prisma, User } from "@prisma/client";
 import httpStatus from "http-status";
+import { JwtPayload } from "jsonwebtoken";
 import ApiError from "../../../errors/ApiError";
 import { calculatePagination } from "../../../helpers/paginationHelper";
 import { prismaExclude } from "../../../helpers/prismaExcludeHelper";
@@ -11,21 +12,45 @@ import { leaderBoardSearchableFields } from "./leaderBoard.constant";
 import { ILeaderBoardFilters } from "./leaderBoard.interface";
 
 export const createLeaderBoardToDB = async (
+  user: JwtPayload | null,
   leaderBoardData: LeaderBoard
 ): Promise<Partial<any> | undefined> => {
-  const result = await prisma.leaderBoard.create({
-    data: leaderBoardData,
-    include: {
-      user: true,
+  const result1 = await prisma.leaderBoard.findFirst({
+    where: {
+      userId: user?.id,
+      categoryId: leaderBoardData.categoryId,
     },
   });
 
-  if (result) {
-    const userWithoutPassword = prismaExclude<User, "password">(result.user, [
-      "password",
-    ]);
+  if (result1) {
+    const result = await prisma.leaderBoard.update({
+      where: {
+        id: result1.id,
+      },
+      data: leaderBoardData,
+    });
 
-    return { ...result, user: userWithoutPassword };
+    if (result) {
+      return result;
+    } else {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Failed to update leaderBoard"
+      );
+    }
+  } else {
+    const result = await prisma.leaderBoard.create({
+      data: leaderBoardData,
+    });
+
+    if (result) {
+      return result;
+    } else {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Failed to create leaderBoard"
+      );
+    }
   }
 };
 

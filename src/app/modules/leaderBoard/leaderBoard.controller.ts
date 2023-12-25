@@ -16,9 +16,10 @@ import { leaderBoardFilterableFields } from "./leaderBoard.constant";
 
 export const createLeaderBoard = catchAsync(
   async (req: Request, res: Response) => {
+    const user = req.user;
     const { ...leaderBoard } = req.body;
 
-    const result = await createLeaderBoardToDB(leaderBoard);
+    const result = await createLeaderBoardToDB(user, leaderBoard);
 
     sendResponse(res, {
       success: true,

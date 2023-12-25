@@ -32,8 +32,9 @@ const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const leaderBoard_service_1 = require("./leaderBoard.service");
 const leaderBoard_constant_1 = require("./leaderBoard.constant");
 exports.createLeaderBoard = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
     const leaderBoard = __rest(req.body, []);
-    const result = yield (0, leaderBoard_service_1.createLeaderBoardToDB)(leaderBoard);
+    const result = yield (0, leaderBoard_service_1.createLeaderBoardToDB)(user, leaderBoard);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,

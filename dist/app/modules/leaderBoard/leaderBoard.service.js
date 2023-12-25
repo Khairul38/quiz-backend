@@ -30,18 +30,37 @@ const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const prismaExcludeHelper_1 = require("../../../helpers/prismaExcludeHelper");
 const prisma_1 = require("../../../shared/prisma");
 const leaderBoard_constant_1 = require("./leaderBoard.constant");
-const createLeaderBoardToDB = (leaderBoardData) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.prisma.leaderBoard.create({
-        data: leaderBoardData,
-        include: {
-            user: true,
+const createLeaderBoardToDB = (user, leaderBoardData) => __awaiter(void 0, void 0, void 0, function* () {
+    const result1 = yield prisma_1.prisma.leaderBoard.findFirst({
+        where: {
+            userId: user === null || user === void 0 ? void 0 : user.id,
+            categoryId: leaderBoardData.categoryId,
         },
     });
-    if (result) {
-        const userWithoutPassword = (0, prismaExcludeHelper_1.prismaExclude)(result.user, [
-            "password",
-        ]);
-        return Object.assign(Object.assign({}, result), { user: userWithoutPassword });
+    if (result1) {
+        const result = yield prisma_1.prisma.leaderBoard.update({
+            where: {
+                id: result1.id,
+            },
+            data: leaderBoardData,
+        });
+        if (result) {
+            return result;
+        }
+        else {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Failed to update leaderBoard");
+        }
+    }
+    else {
+        const result = yield prisma_1.prisma.leaderBoard.create({
+            data: leaderBoardData,
+        });
+        if (result) {
+            return result;
+        }
+        else {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Failed to create leaderBoard");
+        }
     }
 });
 exports.createLeaderBoardToDB = createLeaderBoardToDB;
