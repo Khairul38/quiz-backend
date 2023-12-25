@@ -128,6 +128,7 @@ const getSingleQuizFromDB = (id) => __awaiter(void 0, void 0, void 0, function* 
         },
         include: {
             quizAnswers: true,
+            category: true,
         },
     });
     if (result) {

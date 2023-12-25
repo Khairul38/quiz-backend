@@ -129,6 +129,7 @@ export const getSingleQuizFromDB = async (id: string): Promise<Quiz | null> => {
     },
     include: {
       quizAnswers: true,
+      category: true,
     },
   });
 
