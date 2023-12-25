@@ -108,9 +108,15 @@ const getSingleLeaderBoardFromDB = (id) => __awaiter(void 0, void 0, void 0, fun
         where: {
             id,
         },
+        include: {
+            user: true,
+        },
     });
     if (result) {
-        return result;
+        const userWithoutPassword = (0, prismaExcludeHelper_1.prismaExclude)(result.user, [
+            "password",
+        ]);
+        return Object.assign(Object.assign({}, result), { user: userWithoutPassword });
     }
     else {
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "There is no leaderBoard with the id/Failed to fetched leaderBoard");

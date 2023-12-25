@@ -102,15 +102,21 @@ export const getAllLeaderBoardFromDB = async (
 
 export const getSingleLeaderBoardFromDB = async (
   id: string
-): Promise<LeaderBoard | null> => {
+): Promise<Partial<any> | undefined> => {
   const result = await prisma.leaderBoard.findUnique({
     where: {
       id,
     },
+    include: {
+      user: true,
+    },
   });
 
   if (result) {
-    return result;
+    const userWithoutPassword = prismaExclude<User, "password">(result.user, [
+      "password",
+    ]);
+    return { ...result, user: userWithoutPassword };
   } else {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
