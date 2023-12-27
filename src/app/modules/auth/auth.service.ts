@@ -94,15 +94,15 @@ export const loginUserFromDB = async (
   }
 
   //create access token & refresh token
-  const { id, role, name } = isUserExist;
+  const { id, role, name, contactNo, address, profileImg } = isUserExist;
   const accessToken = createToken(
-    { id, role, email, name },
+    { id, role, email, name, contactNo, address, profileImg },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string
   );
 
   const refreshToken = createToken(
-    { id, role, email, name },
+    { id, role, email, name, contactNo, address, profileImg },
     config.jwt.refresh_secret as Secret,
     config.jwt.refresh_expires_in as string
   );
