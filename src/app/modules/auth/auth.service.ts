@@ -41,15 +41,16 @@ export const createUserToDB = async (
 
   if (createdUser) {
     //create access token & refresh token
-    const { id, role, name, email } = createdUser;
+    const { id, role, name, email, contactNo, address, profileImg } =
+      createdUser;
     const accessToken = createToken(
-      { id, role, email, name },
+      { id, role, email, name, contactNo, address, profileImg },
       config.jwt.secret as Secret,
       config.jwt.expires_in as string
     );
 
     const refreshToken = createToken(
-      { id, role, email, name },
+      { id, role, email, name, contactNo, address, profileImg },
       config.jwt.refresh_secret as Secret,
       config.jwt.refresh_expires_in as string
     );

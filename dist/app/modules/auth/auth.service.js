@@ -37,9 +37,9 @@ const createUserToDB = (userData) => __awaiter(void 0, void 0, void 0, function*
     });
     if (createdUser) {
         //create access token & refresh token
-        const { id, role, name, email } = createdUser;
-        const accessToken = (0, jwtHelpers_1.createToken)({ id, role, email, name }, config_1.default.jwt.secret, config_1.default.jwt.expires_in);
-        const refreshToken = (0, jwtHelpers_1.createToken)({ id, role, email, name }, config_1.default.jwt.refresh_secret, config_1.default.jwt.refresh_expires_in);
+        const { id, role, name, email, contactNo, address, profileImg } = createdUser;
+        const accessToken = (0, jwtHelpers_1.createToken)({ id, role, email, name, contactNo, address, profileImg }, config_1.default.jwt.secret, config_1.default.jwt.expires_in);
+        const refreshToken = (0, jwtHelpers_1.createToken)({ id, role, email, name, contactNo, address, profileImg }, config_1.default.jwt.refresh_secret, config_1.default.jwt.refresh_expires_in);
         return {
             accessToken,
             refreshToken,
