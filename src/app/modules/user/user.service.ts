@@ -103,7 +103,7 @@ export const updateSingleUserToDB = async (
         email: payload.email,
       },
     });
-    if (isExist) {
+    if (isExist && isExist.id === id) {
       throw new ApiError(
         httpStatus.CONFLICT,
         "Another user already exists with this email. Please provide a new email."
