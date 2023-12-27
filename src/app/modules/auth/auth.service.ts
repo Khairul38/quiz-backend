@@ -125,7 +125,7 @@ export const refreshTokenUserFromDB = async (
     throw new ApiError(httpStatus.FORBIDDEN, "Invalid Refresh Token");
   }
 
-  console.log(verifiedToken);
+  // console.log(verifiedToken);
 
   const { email, name } = verifiedToken;
 

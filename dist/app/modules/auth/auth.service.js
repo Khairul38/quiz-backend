@@ -88,7 +88,7 @@ const refreshTokenUserFromDB = (token) => __awaiter(void 0, void 0, void 0, func
     catch (err) {
         throw new ApiError_1.default(http_status_1.default.FORBIDDEN, "Invalid Refresh Token");
     }
-    console.log(verifiedToken);
+    // console.log(verifiedToken);
     const { email, name } = verifiedToken;
     // tumi delete hye gso  kintu tumar refresh token ase
     // checking deleted user's refresh token

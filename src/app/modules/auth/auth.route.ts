@@ -2,7 +2,7 @@ import express from "express";
 import validateRequest from "../../middlewares/validateRequest";
 import { createUserZodSchema } from "../user/user.validation";
 import { createUser, loginUser, refreshTokenUser } from "./auth.controller";
-import { loginZodSchema } from "./auth.validation";
+import { loginZodSchema, refreshTokenZodSchema } from "./auth.validation";
 
 const router = express.Router();
 
@@ -12,7 +12,7 @@ router.post("/signin", validateRequest(loginZodSchema), loginUser);
 
 router.post(
   "/refresh-token",
-  // validateRequest(refreshTokenZodSchema),
+  validateRequest(refreshTokenZodSchema),
   refreshTokenUser
 );
 
