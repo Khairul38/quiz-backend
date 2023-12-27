@@ -102,7 +102,7 @@ const updateSingleUserToDB = (id, payload) => __awaiter(void 0, void 0, void 0, 
                 email: payload.email,
             },
         });
-        if (isExist && isExist.id === id) {
+        if (isExist && isExist.id !== id) {
             throw new ApiError_1.default(http_status_1.default.CONFLICT, "Another user already exists with this email. Please provide a new email.");
         }
     }
