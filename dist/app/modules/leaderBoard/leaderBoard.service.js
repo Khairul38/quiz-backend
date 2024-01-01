@@ -92,6 +92,7 @@ const getAllLeaderBoardFromDB = (filters, paginationOptions) => __awaiter(void 0
         where: whereCondition,
         include: {
             user: true,
+            category: true,
         },
         skip,
         take: size,
