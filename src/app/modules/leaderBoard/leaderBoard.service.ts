@@ -92,6 +92,7 @@ export const getAllLeaderBoardFromDB = async (
     where: whereCondition,
     include: {
       user: true,
+      category: true,
     },
     skip,
     take: size,
