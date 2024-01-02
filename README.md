@@ -48,4 +48,4 @@ This is the documentation for the Authentication and Core Service component of t
 - https://quiz-backend-pied.vercel.app/api/v1/leaderBoards/:id (DELETE)
 
 
-Postman Documentation: [Click Here](https://documenter.getpostman.com/view/26682150/2s93zB72V9#acc25f08-de78-478b-809d-837ce239d2b3)
+Postman Documentation: [Click Here](https://documenter.getpostman.com/view/19250883/2s9YsFDZDz)
